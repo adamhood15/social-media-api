@@ -12,6 +12,15 @@ module.exports = {
         }
     },
 
+    async getUserId(req, res) {
+        try {
+            const user = await User.findById(req.params.userId);
+            res.json(user);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
     async createUser(req, res) {
         console.log('create');
 
@@ -21,5 +30,16 @@ module.exports = {
         } catch (err) {
             res.status(500).json(err);
         }
-    }
+    },
+
+    async deleteUser(req, res) {
+        try {
+            const user = await User.deleteOne({ _id: req.params.userId });
+            res.json(user);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+
 }
