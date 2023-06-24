@@ -12,9 +12,9 @@ const thoughtSchema = new Schema(
         },
         createdAt: {
             type: Date,
-            default: Date.now,
+            default: () => Date.now().toLocaleString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}),
+          
             //Add getter method to format the timestamp on query
-            // get: formatDate
         },
         username: {
             type: String,
@@ -29,14 +29,17 @@ const thoughtSchema = new Schema(
     }
 );
 
+
 //reaction count virtual that displays the number of reactions
 // thoughtSchema.virtual('reactionCount').get(function() {
 //     return this.reactions.length + 1;
 //   });
 
-// formatDate(date) {
-//     console.log(date)
-// }
+
+
+// thoughtSchema.virtual('formatDate').get(function() {
+//     return this.createdAt.toLocaleString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}); 
+// });
 
 const Thought = model('thought', thoughtSchema);
 
