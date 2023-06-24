@@ -41,5 +41,22 @@ module.exports = {
         }
     },
 
+    async updateUser(req, res) {
+        try {
+            const user = await User.updateOne(
+                { _id: req.params.userId }, 
+                { 
+                    username: req.body.username,
+                    email: req.body.email,
+                    thoughts: req.body.thoughts,
+                    friends: req.body.friends,
+                }, 
+                {returnOriginal: false});
+            res.json(user);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    }
+
 
 }
