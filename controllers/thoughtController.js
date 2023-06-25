@@ -1,4 +1,5 @@
 const { Thought } = require('../models/Thought');
+const { User } = require('../models/User');
 
 module.exports = {
     //Get all thought
@@ -26,7 +27,22 @@ module.exports = {
         console.log('create');
 
         try {
+            console.log('You are adding a thought');
+            console.log(req.body);
             const thought = await Thought.create(req.body);
+            //Adds the thought object to the User that was provided
+            const user = await User.findOneAndUpdate(
+                { username: req.body.username },
+                { $addToSet: { thoughts: req.body } },
+                { runValidators: true, new: true }
+            );
+
+            if (!user) {
+                return res
+                  .status(404)
+                  .json({ message: 'No user found with that ID '})
+            };
+
             res.json(thought);
         } catch (err) {
             console.log(err);
@@ -37,11 +53,28 @@ module.exports = {
     async deleteThought(req, res) {
         try {
             const thought = await Thought.deleteOne({ _id: req.params.thoughtId });
-            res.json(thought);
+            console.log(req.params.thoughtId);
+
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId},
+                { $pull: { thoughts: { _id: req.params.thoughtId } } },
+                { runValidators: true, new: true},
+
+            );
+
+            if (!user) {
+                return res
+                  .status(404)
+                  .json({message: 'No user found with that ID'});
+            };
+
+            res.json(user);
         } catch (err) {
+            console.log(err);
             res.status(500).json(err);
         }
     },
+
 
     async updateThought(req, res) {
         try {

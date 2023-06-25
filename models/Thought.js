@@ -8,8 +8,8 @@ const thoughtSchema = new Schema(
         thoughtText: {
             type: String,
             required: true,
-            minimum: 1,
-            maximum: 280
+            min_length: 1,
+            max_length: 280
         },
         createdAt: {
             type: Date,
@@ -21,7 +21,12 @@ const thoughtSchema = new Schema(
             type: String,
             required: true
         },
-        reactions: [reactionSchema]
+        reactions: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'reaction',
+            }
+        ]
     },
     {
         toJSON: {
@@ -32,15 +37,10 @@ const thoughtSchema = new Schema(
 
 
 //reaction count virtual that displays the number of reactions
-// thoughtSchema.virtual('reactionCount').get(function() {
-//     return this.reactions.length + 1;
-//   });
+thoughtSchema.virtual('reactionCount').get(function() {
+    return this.reactions.length;
+  });
 
-
-
-// thoughtSchema.virtual('formatDate').get(function() {
-//     return this.createdAt.toLocaleString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}); 
-// });
 
 const Thought = model('thought', thoughtSchema);
 

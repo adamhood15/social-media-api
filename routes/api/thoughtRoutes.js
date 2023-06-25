@@ -8,6 +8,8 @@ router.route('/').get(getThoughts).post(createThought);
 
 // /api/users/:thoughtId
 //deletes a user by id
-router.route('/:thoughtId').get(getThoughtId).delete(deleteThought).put(updateThought);
+router.route('/:thoughtId').get(getThoughtId).put(updateThought);
+
+router.route('/:thoughtId/user/:userId').delete(deleteThought);
 
 module.exports = router;
