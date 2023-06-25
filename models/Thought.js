@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const reactionSchema = require('./Reaction');
 
 //Schema used to create a Thought model
 
@@ -12,21 +13,34 @@ const thoughtSchema = new Schema(
         },
         createdAt: {
             type: Date,
-            default: Date.now 
+            default: () => Date.now().toLocaleString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}),
+          
             //Add getter method to format the timestamp on query
         },
         username: {
             type: String,
             required: true
         },
-        //reactions: [reactionSchema]
+        reactions: [reactionSchema]
     },
     {
         toJSON: {
             getters: true,
         },
     }
-)
+);
+
+
+//reaction count virtual that displays the number of reactions
+// thoughtSchema.virtual('reactionCount').get(function() {
+//     return this.reactions.length + 1;
+//   });
+
+
+
+// thoughtSchema.virtual('formatDate').get(function() {
+//     return this.createdAt.toLocaleString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}); 
+// });
 
 const Thought = model('thought', thoughtSchema);
 
