@@ -14,7 +14,11 @@ module.exports = {
 
     async getUserId(req, res) {
         try {
-            const user = await User.findById(req.params.userId);
+            const user = await User.findById(req.params.userId)
+            .populate({ path: 'thoughts'})
+            .populate({ path: 'friends'})
+            .exec();
+            
             res.json(user);
         } catch (err) {
             res.status(500).json(err);
@@ -35,7 +39,7 @@ module.exports = {
     async deleteUser(req, res) {
         try {
             const user = await User.deleteOne({ _id: req.params.userId });
-            res.json(user);
+            res.json({message: 'User deleted!'});
         } catch (err) {
             res.status(500).json(err);
         }
@@ -51,9 +55,57 @@ module.exports = {
                     thoughts: req.body.thoughts,
                     friends: req.body.friends,
                 }, 
-                {returnOriginal: false});
-            res.json(user);
+                {new: true});
+
+            const newUser = await User.findById(req.params.userId);
+            res.json(newUser);
         } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+    async addFriend(req, res) {
+        try {
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $addToSet: { friends: req.params.friendId } },
+                { new: true }
+            );
+
+            const user2 = await User.findOneAndUpdate(
+                { _id: req.params.friendId },
+                { $addToSet: { friends: req.params.userId } },
+                { new: true }
+            );
+
+            const newUser = await User.findById(req.params.userId);
+            res.json(newUser);
+
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
+    },
+
+    async deleteFriend(req, res) {
+        try { 
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $pull: { friends: req.params.friendId } },
+                { new: true }
+            );
+
+            const user2 = await User.findOneAndUpdate(
+                { _id: req.params.friendId },
+                { $pull: { friends: req.params.userId } },
+                { new: true }
+            );
+
+            const newUser = await User.findById(req.params.userId);
+            res.json(newUser);
+
+        } catch (err) {
+            console.log(err);
             res.status(500).json(err);
         }
     }
