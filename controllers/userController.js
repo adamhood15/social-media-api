@@ -35,7 +35,7 @@ module.exports = {
     async deleteUser(req, res) {
         try {
             const user = await User.deleteOne({ _id: req.params.userId });
-            res.json(user);
+            res.json({message: 'User deleted!'});
         } catch (err) {
             res.status(500).json(err);
         }
@@ -54,6 +54,48 @@ module.exports = {
                 {returnOriginal: false});
             res.json(user);
         } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+    async addFriend(req, res) {
+        try {
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $addToSet: { friends: req.params.friendId } },
+                { new: true }
+            );
+
+            const user2 = await User.findOneAndUpdate(
+                { _id: req.params.friendId },
+                { $addToSet: { friends: req.params.userId } },
+                { new: true }
+            );
+
+            res.json({ message: 'Friend added!'});
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
+    },
+
+    async deleteFriend(req, res) {
+        try { 
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $pull: { friends: req.params.friendId } },
+                { new: true }
+            );
+
+            const user2 = await User.findOneAndUpdate(
+                { _id: req.params.friendId },
+                { $pull: { friends: req.params.userId } },
+                { new: true }
+            );
+
+            res.json({ message: 'Friend removed!'});
+        } catch (err) {
+            console.log(err);
             res.status(500).json(err);
         }
     }

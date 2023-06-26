@@ -33,8 +33,8 @@ module.exports = {
             //Adds the thought object to the User that was provided
             const user = await User.findOneAndUpdate(
                 { username: req.body.username },
-                { $addToSet: { thoughts: req.body } },
-                { runValidators: true, new: true }
+                { $push: { thoughts: thought._id } },
+                { new: true }
             );
 
             if (!user) {
@@ -42,6 +42,7 @@ module.exports = {
                   .status(404)
                   .json({ message: 'No user found with that ID '})
             };
+            
 
             res.json(thought);
         } catch (err) {
@@ -68,7 +69,7 @@ module.exports = {
                   .json({message: 'No user found with that ID'});
             };
 
-            res.json(user);
+            res.json({message: 'User deleted!'});
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -89,6 +90,21 @@ module.exports = {
                 {returnOriginal: false});
             res.json(thought);
         } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+    async addReaction(req, res) {
+        try {
+            const thought = await Thought.findOneAndUpdate(
+                { _id: req.params.thoughtId },
+                { $addToSet: { reactions: req.body }},
+                { new: true }
+            );
+
+            res.json(thought);
+        } catch(err) {
+            console.log(err);
             res.status(500).json(err);
         }
     }
