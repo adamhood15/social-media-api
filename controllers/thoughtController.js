@@ -1,5 +1,7 @@
 const { Thought } = require('../models/Thought');
 const { User } = require('../models/User');
+var mongoose = require('mongoose');
+
 
 module.exports = {
     //Get all thought
@@ -96,14 +98,48 @@ module.exports = {
 
     async addReaction(req, res) {
         try {
+            //if no reactionId is created, server will generate one automatically
+            if (!req.body.reactionId) {
+                const rId = new mongoose.Types.ObjectId();
+                const reaction = {
+                    "reactionId": `${rId}`,
+                    "reactionBody": `${req.body.reactionBody}`,
+                    "username": `${req.body.username}`,
+                    "createdAt": `${req.body.createdAt}`
+                }
+                const thought = await Thought.findOneAndUpdate(
+                    { _id: req.params.thoughtId },
+                    { $addToSet: { reactions: reaction }},
+                    { new: true }
+                );
+                res.json(thought);
+
+            } else {
+                const thought = await Thought.findOneAndUpdate(
+                    { _id: req.params.thoughtId },
+                    { $addToSet: { reactions: req.body }},
+                    { new: true }
+                );
+                res.json(thought);
+            }
+
+        } catch(err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
+    },
+
+    async deleteReaction(req, res) {
+        try {
             const thought = await Thought.findOneAndUpdate(
                 { _id: req.params.thoughtId },
-                { $addToSet: { reactions: req.body }},
+                { $pull: { reactions: req.body.reactionId }},
                 { new: true }
             );
 
             res.json(thought);
-        } catch(err) {
+
+        } catch (err) {
             console.log(err);
             res.status(500).json(err);
         }

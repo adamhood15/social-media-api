@@ -14,7 +14,11 @@ module.exports = {
 
     async getUserId(req, res) {
         try {
-            const user = await User.findById(req.params.userId);
+            const user = await User.findById(req.params.userId)
+            .populate({ path: 'thoughts'})
+            .populate({ path: 'friends'})
+            .exec();
+            
             res.json(user);
         } catch (err) {
             res.status(500).json(err);
@@ -51,8 +55,10 @@ module.exports = {
                     thoughts: req.body.thoughts,
                     friends: req.body.friends,
                 }, 
-                {returnOriginal: false});
-            res.json(user);
+                {new: true});
+
+            const newUser = await User.findById(req.params.userId);
+            res.json(newUser);
         } catch (err) {
             res.status(500).json(err);
         }
@@ -72,7 +78,9 @@ module.exports = {
                 { new: true }
             );
 
-            res.json({ message: 'Friend added!'});
+            const newUser = await User.findById(req.params.userId);
+            res.json(newUser);
+
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -93,7 +101,9 @@ module.exports = {
                 { new: true }
             );
 
-            res.json({ message: 'Friend removed!'});
+            const newUser = await User.findById(req.params.userId);
+            res.json(newUser);
+
         } catch (err) {
             console.log(err);
             res.status(500).json(err);

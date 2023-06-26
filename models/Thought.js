@@ -13,7 +13,11 @@ const thoughtSchema = new Schema(
         },
         createdAt: {
             type: Date,
-            default: () => Date.now().toLocaleString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}),
+            default: () => Date.now(),
+            get: function (newDate) {
+                const options = { month: 'long', day: 'numeric', year: 'numeric' };
+                return new Date(newDate).toLocaleDateString(undefined, options);
+              }
           
             //Add getter method to format the timestamp on query
         },
@@ -28,6 +32,8 @@ const thoughtSchema = new Schema(
         toJSON: {
             getters: true,
         },
+        id: false,
+
     }
 );
 
@@ -36,7 +42,6 @@ const thoughtSchema = new Schema(
 thoughtSchema.virtual('reactionCount').get(function() {
     return this.reactions.length;
   });
-
 
 const Thought = model('thought', thoughtSchema);
 
